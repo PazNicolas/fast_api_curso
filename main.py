@@ -1,16 +1,9 @@
 import db
 from fastapi import FastAPI,HTTPException
-from fastapi.responses import HTMLResponse
 
 app = FastAPI()
 app.title = "Api de Nico"
 app.version = "1.0"
-
-
-
-@app.get("/", tags=["Home"])
-def saludo():
-    return HTMLResponse("<h1>Hello world</h1>")
 
 
 
@@ -23,5 +16,8 @@ def get_movie(id: int):
 
 
 @app.get("/movies/", tags=["Movies"])
-def get_movies_by_genres(genres: str, year: int):
-    return genres
+def get_movies_by_year(year: str):
+    for item in db.data:
+        if item["year"] == year:
+            return item
+        
