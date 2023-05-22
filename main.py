@@ -1,5 +1,5 @@
 import db
-from fastapi import FastAPI,HTTPException
+from fastapi import FastAPI,HTTPException, Body
 
 app = FastAPI()
 app.title = "Api de Nico"
@@ -21,3 +21,7 @@ def get_movies_by_year(year: str):
         if item["year"] == year:
             return item
         
+@app.post("/movies",tags=["Movies"])
+def create_movies(id: int = Body(), title: str = Body(), year: str = Body(), runtime:int= Body()):
+    return title
+
