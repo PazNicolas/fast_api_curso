@@ -1,49 +1,23 @@
+from fastapi import FastAPI, HTTPException, Body, Depends, Request
+from fastapi.responses import JSONResponse, HTMLResponse
 from typing import Optional
-from pydantic import BaseModel
-from fastapi import FastAPI, HTTPException, Body
+from pydantic import BaseModel, Field
+from data import movies
+from models import Movie, User, JWTBearer
+from jwt_manager import create_token
+
 
 app = FastAPI()
 app.title = "Api de Nico"
 app.version = "1.0"
 
 
-class Movie(BaseModel):
-    id: Optional[int] = None
-    title: str
-    overview: str
-    year: int
-    rating: float
-    category: str
-    category: str
-
-
-movies = [
-    {
-        "id": 1,
-        "title": "Avatar",
-        "overview": "En un exuberante planeta llamado Pandora viven los Na'vi, seres que ...",
-        "year": "2009",
-                "rating": 7.8,
-                "category": "Acción"
-    },
-
-    {
-        "id": 2,
-        "title": "Avatar",
-        "overview": "En un exuberante planeta llamado Pandora viven los Na'vi, seres que ...",
-        "year": "2009",
-                "rating": 7.8,
-                "category": "Acción"
-    }
-]
-
-
-@app.get('/movies', tags=['movies'])
+@app.get('/movies', tags=['Movies'])
 def get_movies():
     return movies
 
 
-@app.get("/movies/{id}", tags=["Movies"])
+@app.get("/movies/{id}", tags=["Movies"], status_code=200, dependencies=[Depends(JWTBearer())])
 def get_movie(id: int):
     for item in movies:
         if item["id"] == id:
@@ -51,18 +25,18 @@ def get_movie(id: int):
     raise HTTPException(status_code=404, detail="Pelicula no encontrada")
 
 
-@app.get('/movies/', tags=['movies'])
+@app.get('/movies/', tags=['Movies'])
 def get_movies_by_category(category: str, year: int):
     return [item for item in movies if item['category'] == category]
 
 
-@app.post('/movies', tags=['movies'])
+@app.post('/movies', tags=['Movies'],status_code=201)
 def create_movie(movie: Movie):
     movies.append(movie)
-    return movies
+    return JSONResponse(status_code=201, content={"message": "Pelicula agregada"})
 
 
-@app.put('/movies/{id}', tags=['movies'])
+@app.put('/movies/{id}', tags=['Movies'],status_code=200)
 def update_movie(id: int, movie: Movie):
     for mov in movies:
         if mov["id"] == id:
@@ -70,9 +44,16 @@ def update_movie(id: int, movie: Movie):
     return movies
 
 
-@app.delete('/movies/{id}', tags=['movies'])
+@app.delete('/movies/{id}', tags=['Movies'], status_code=200)
 def delete_movie(id: int):
     for item in movies:
         if item["id"] == id:
             movies.remove(item)
-            return movies
+            return JSONResponse(status_code=204, content={"message": "Pelicula eliminada"})
+        
+
+@app.post('/login',tags=['Auth'])
+def login(user: User):
+    if user.email == "admin@admin.com" and user.password == "admin":
+        token:str = create_token(user.dict())
+    return JSONResponse(content=token, status_code=200)
