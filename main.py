@@ -27,11 +27,11 @@ class User(BaseModel):
 
 class Movie(BaseModel):
     id: Optional[int] = None
-    title: str = Field(min_length=5, max_length=50)
-    overview: str = Field(min_length=15, max_length=300)
+    title: str = Field(min_length=5, max_length=100)
+    overview: str = Field(min_length=10, max_length=2000)
     year: int = Field(le=2023)
     rating:float = Field(ge=1, le=10)
-    category:str = Field(min_length=5, max_length=200)
+    category:str = Field(min_length=5, max_length=600)
 
     class Config:
         schema_extra = {
@@ -45,24 +45,6 @@ class Movie(BaseModel):
             }
         }
 
-movies = [
-    {
-		"id": 1,
-		"title": "Avatar",
-		"overview": "En un exuberante planeta llamado Pandora viven los Na'vi, seres que ...",
-		"year": "2009",
-		"rating": 7.8,
-		"category": "Acción"
-	},
-    {
-		"id": 2,
-		"title": "Avatar",
-		"overview": "En un exuberante planeta llamado Pandora viven los Na'vi, seres que ...",
-		"year": "2009",
-		"rating": 7.8,
-		"category": "Acción"
-	}
-]
 
 @app.get('/', tags=['home'])
 def message():
