@@ -10,7 +10,7 @@ from fastapi.encoders import jsonable_encoder
 
 app = FastAPI()
 app.title = "Api Movies Nico"
-app.version = "0.0.9"
+app.version = "1.0.0"
 
 Base.metadata.create_all(bind=engine)
 
