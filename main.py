@@ -48,7 +48,7 @@ class Movie(BaseModel):
 
 @app.get('/', tags=['home'])
 def message():
-    return HTMLResponse('<h1>Hello world</h1>')
+    return HTMLResponse('<h1>Bienvenido a la API de películas</h1>')
 
 
 @app.post('/login', tags=['auth'])
