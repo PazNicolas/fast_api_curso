@@ -7,10 +7,12 @@ from fastapi.security import HTTPBearer
 from config.database import Session, engine, Base
 from models.movie import Movie as MovieModel
 from fastapi.encoders import jsonable_encoder
+from fastapi.templating import Jinja2Templates
 
 app = FastAPI()
 app.title = "Api Movies Nico"
 app.version = "1.0.0"
+templates = Jinja2Templates(directory="templates")
 
 Base.metadata.create_all(bind=engine)
 
@@ -46,8 +48,11 @@ class Movie(BaseModel):
 
 
 @app.get('/', tags=['home'])
-def message():
-    return HTMLResponse('<h1>Bienvenido a la API de películas</h1>')
+def message(request: Request):
+    sections = [
+        {'name': 'Películas', 'url': '/movies/1/'}
+    ]
+    return templates.TemplateResponse("index.html", {"request": request, "sections": sections})
 
 
 @app.post('/login', tags=['auth'])

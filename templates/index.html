@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>API de películas</title>
+</head>
+<body>
+    <h1>Bienvenido a la API de películas</h1>
+    <ul>
+        {% for section in sections %}
+            <li><a href="{{ section.url }}">{{ section.name }}</a></li>
+        {% endfor %}
+    </ul>
+</body>
+</html>
