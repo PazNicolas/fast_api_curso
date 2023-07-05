@@ -36,7 +36,6 @@ class Movie(BaseModel):
     class Config:
         schema_extra = {
             "example": {
-                "id": 1,
                 "title": "Mi película",
                 "overview": "Descripción de la película",
                 "year": 2022,
