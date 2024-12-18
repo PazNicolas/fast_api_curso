@@ -6,8 +6,10 @@ from jwt_manager import create_token, validate_token
 from fastapi.security import HTTPBearer
 from config.database import Session, engine, Base
 from models.movie import Movie as MovieModel
+from models.user import User as UserModel
 from fastapi.encoders import jsonable_encoder
 from fastapi.templating import Jinja2Templates
+import bcrypt
 
 app = FastAPI()
 app.title = "Api Movies Nico"
@@ -112,3 +114,47 @@ def delete_movie(id: int) -> dict:
     db.delete(result)
     db.commit()
     return {'message': 'La pelicula ha sido eliminada'}
+
+@app.post('/users', tags=['users'], response_model=dict, status_code=201)
+def create_user(user: User) -> dict:
+    db = Session()
+    hashed_password = bcrypt.hashpw(user.password.encode('utf-8'), bcrypt.gensalt())
+    new_user = UserModel(email=user.email, password=hashed_password)
+    db.add(new_user)
+    db.commit()
+    return JSONResponse(status_code=201, content={"message": "Usuario creado"})
+
+@app.get('/users', tags=['users'], response_model=List[User], status_code=200)
+def get_users() -> List[User]:
+    db = Session()
+    result = db.query(UserModel).all()
+    return JSONResponse(status_code=200, content=jsonable_encoder(result))
+
+@app.get('/users/{id}', tags=['users'], response_model=User)
+def get_user(id: int = Path(ge=1, le=2000)) -> User:
+    db = Session()
+    result = db.query(UserModel).filter(UserModel.id == id).first()
+    if not result:
+        return JSONResponse(status_code=404, content={'message': 'El usuario no existe'})
+    return JSONResponse(status_code=200, content=jsonable_encoder(result))
+
+@app.put('/users/{id}', tags=['users'], response_model=dict, status_code=200)
+def update_user(id: int, user: User) -> dict:
+    db = Session()
+    result = db.query(UserModel).get(id)
+    if not result:
+        return {'message': 'El usuario no existe'}
+    result.email = user.email
+    result.password = bcrypt.hashpw(user.password.encode('utf-8'), bcrypt.gensalt())
+    db.commit()
+    return {'message': 'El usuario ha sido actualizado'}
+
+@app.delete('/users/{id}', tags=['users'], response_model=dict, status_code=200)
+def delete_user(id: int) -> dict:
+    db = Session()
+    result = db.query(UserModel).filter(UserModel.id == id).first()
+    if not result:
+        raise HTTPException(status_code=404, detail='El usuario no existe')
+    db.delete(result)
+    db.commit()
+    return {'message': 'El usuario ha sido eliminado'}
